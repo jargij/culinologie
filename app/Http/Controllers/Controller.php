@@ -9,6 +9,8 @@ abstract class Controller extends BaseController
 {
     use DispatchesCommands, ValidatesRequests;
 
+    protected static $default_language = 'nl';
+    
     /**
      * Controller constructor.
      */

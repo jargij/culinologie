@@ -143,11 +143,11 @@
             
         <div class="col-md-9" id="comments">
             <h3 class="text-left">Reacties
-                @if(Auth::user())
-                <button onClick="$('#reviewForm').toggleClass('hidden');" class="btn btn-primary pull-right btn-sm">Reactie formulier</button>
+                @if(Auth::check())
+                    <button onClick="$('#reviewForm').toggleClass('hidden');" class="btn btn-primary pull-right btn-sm">Reactie formulier</button>
                 @endif
             </h3>
-            @if(Auth::user())
+            @if(Auth::check())
             <form class="form-horizontal hidden" id="reviewForm" method="post" action="{{route('recipes.postComment', $recipe->tracking_nr)}}">
                 <fieldset>
                 {!! csrf_field() !!}
@@ -215,7 +215,7 @@
             <div class="row">
         		                
                 <div class="list-group">
-                @if($recipe->comments->count() ==0)
+                @if($recipe->comments->count() == 0)
                 <p class="text-center well">Geen reacties gevonden...</p>
                 @else
                   @foreach($recipe->comments()->orderBy('id','DESC')->get() as $comment)
@@ -237,7 +237,7 @@
 
                         <h4 class="list-group-item-heading">
                             {{$comment->title}}
-                            @if (Auth::user())
+                            @if (Auth::check())
                                 @if ($comment->user_id == Auth::user()->id)
                                     <a data-url="{{route('recipes.deleteComment',[$recipe->id, $comment->id])}}" class="btn btn-xs text-danger pull-right deleteComment"><i class="fa fa-trash-o fa-fw"></i></a>
                                 @endif
@@ -247,7 +247,7 @@
 
                         </h4>
                         <p class="list-group-item-text">
-                            {!!nl2br(htmlspecialchars($comment->body))!!}
+                            {{ $comment->body }}
                         </p>
 
                     </div>

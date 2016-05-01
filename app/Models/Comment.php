@@ -18,19 +18,13 @@ final class Comment extends Model
     {
         return $this->belongsTo('App\Models\Recipe', 'recipe_tracking_nr', 'tracking_nr');
     }
+
+    public function setBodyAttribute($newValue) {
+        $this->attributes['body'] = htmlentities($newValue);
+    }
     
     public function getHtmlStars()
     {
-        $rating = $this->rating;
-        $output ='';
-        for($i=1;$i<=5;$i++) {
-          if($i <= $rating) {
-        	$output .= '<i class="fa fa-star"></i>';
-          } else {
-        	$output .= '<i class="fa fa-star-o"></i>';
-          }
-        }
-        return $output;
-        
+        return html_rating($this->rating);
     }
 }

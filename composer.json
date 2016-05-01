@@ -16,6 +16,7 @@
 	},
 	"autoload": {
 		"classmap": [
+			"bootstrap/helpers.php",
 			"database"
 		],
 		"psr-4": {

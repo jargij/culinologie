@@ -23,7 +23,6 @@ class RecipesController extends Controller
     private $db;
 
     private static $per_page = 25;
-    private static $default_language = 'nl';
 
     public function __construct(DatabaseManager $db)
     {
@@ -34,6 +33,7 @@ class RecipesController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param string $cookbook
      * @return Response
      */
     public function index($cookbook = '*')
@@ -193,7 +193,7 @@ class RecipesController extends Controller
         }
 
         if (Input::has('directions')) {
-            $recipe->description = Input::get('directions');
+            $recipe->description = htmlentities(Input::get('directions'));
         }
 
         // Override the category if the user provided one.
@@ -291,73 +291,5 @@ class RecipesController extends Controller
 
         return redirect()->route('recipes.show', ['recipes' => $recipe->tracking_nr])
             ->with('lang', $recipe->language);
-    }
-
-    const DEFAULT_LIST = 'Loved';
-
-    public function bookmark($tracking_nr)
-    {
-        $list = static::DEFAULT_LIST;
-        $language = Input::get('language', static::$default_language);
-
-        $recipe = Recipe::select('id')->where('tracking_nr', '=', $tracking_nr)
-            ->where('language', '=', $language)
-            ->first();
-
-        if (!$recipe) abort(500);
-
-        DB::table('recipe_bookmarks')->insert([
-            'user_id' => Auth::user()->id,
-            'list' => $list,
-            'recipe_id' => $recipe['id']
-        ]);
-
-        return redirect()->route('recipes.show', ['recipes' => $tracking_nr])
-            ->with('lang', $language);
-    }
-
-    public function unbookmark($tracking_nr)
-    {
-        $list = static::DEFAULT_LIST;
-        $language = Input::get('language', static::$default_language);
-
-        $recipe = Recipe::select('id')->where('tracking_nr', '=', $tracking_nr)
-            ->where('language', '=', $language)
-            ->first();
-
-        if (!$recipe) abort(500);
-
-        DB::table('recipe_bookmarks')
-            ->where('recipe_id', $recipe['id'])
-            ->where('user_id', Auth::user()->id)
-            ->where('list', $list)
-            ->delete();
-
-        return redirect()->route('recipes.show', ['recipes' => $tracking_nr])
-            ->with('lang', $language);
-    }
-
-    public function postComment($trackingnr)
-    {
-        $data = Input::only('title','rating','body');
-        $comment = new Comment($data);
-        $comment->user_id = Auth::user()->id;
-        $comment->recipe_tracking_nr = $trackingnr;
-        $comment->save();
-        return Redirect::to('recipes/'.$trackingnr);
-    }
-
-    public function deleteComment($recipe_id, $comment_id)
-    {
-        $comment = Comment::findOrFail($comment_id);
-        if ($comment->user_id == Auth::user()->id) {
-            $comment->delete();
-            Session::flash('status', 'Reactie verwijderd!');
-            return 1;
-        }
-        else {
-            Session::flash('warning', 'Kon reactie niet verwijderen');
-            return 0;
-        }
     }
 }
